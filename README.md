@@ -31,3 +31,7 @@
   ```bash
   python evaluate.py
   ```
+
+
+## License
+- The intended use is strictly limited to research and non-commercial projects.
