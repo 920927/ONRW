@@ -18,7 +18,7 @@
 ## 1. Scripts of ONRW
 - To try our watermarking method, use:
   ```bash
-  python SLM.py
+  python main.py
   ```
 ## 2. Scripts of evaluation
 - To evaluate the image quality, use:
