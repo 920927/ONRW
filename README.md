@@ -35,3 +35,16 @@
 
 ## License
 - The intended use is strictly limited to research and non-commercial projects.
+
+If you find this work useful, please cite
+```
+@misc{ding2026onrwoptimizinginversionnoise,
+      title={ONRW: Optimizing inversion noise for high-quality and robust watermark}, 
+      author={Xuan Ding and Xiu Yan and Chuanlong Xie and Yao Zhu},
+      year={2026},
+      eprint={2601.17388},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2601.17388}, 
+}
+```
