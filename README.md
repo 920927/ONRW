@@ -11,7 +11,7 @@
   ```bash
   conda create -n ONRW python=3.9
   conda activate ONRW
-  pip install -r requirement.txt
+  pip install -r requirements.txt
   ```
 
 
