@@ -9,7 +9,7 @@
 
 ## Installation
   ```bash
-  conda create -n ONRW python=3.9
+  conda create -n ONRW python=3.10
   conda activate ONRW
   pip install -r requirements.txt
   ```
