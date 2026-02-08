@@ -99,7 +99,7 @@ def model_transfer(clean_img_paths, adv_img_paths, label, res, save_path=r"outpu
             img = transform_imnet(img).unsqueeze(0).to("cuda")
             img = attack(img)
             decoded = msg_decoder(img) # b c h w -> b k
-            keys = [int(bit) for bit in keys]
+            keys = keys.squeeze(0).cpu().int().tolist()
             keys = torch.tensor(keys, dtype=torch.float32).to('cuda:0')
             diff = (~torch.logical_xor(decoded>0, keys>0)) # b k -> b k
 
