@@ -25,7 +25,9 @@ parser.add_argument('--is_test', default=False, type=bool, help='whether to test
 
 # model
 parser.add_argument('--model_name', default='resnet', type=str, help='the surrogate model from which the adversarial examples are crafted')
-parser.add_argument('--pretrained_diffusion_path', default='model/stable-diffusion-2-base', type=str, help='path to the pretrained model')
+# parser.add_argument('--pretrained_diffusion_path', default='model/stable-diffusion-2-base', type=str, help='path to the pretrained model')
+parser.add_argument('--pretrained_diffusion_path', default='/stable-diffusion-2-1-base', type=str, help='path to the pretrained model')
+
 parser.add_argument('--msg_decoder_path', type=str, default='model/decoder_model/dec_48b_whit.torchscript.pt', help='Path to the hidden decoder for the watermarking model')
 
 # directory
@@ -83,18 +85,6 @@ def msg2str(msg):
 def str2msg(str):
     return [True if el=='1' else False for el in str]
     
-# def get_coco_label(annotation_path):
-#     with open(annotation_path, 'r', encoding='utf-8') as file:
-#         data = json.load(file)
-
-#     if isinstance(data, dict):
-#         print("JSON is a dictionary with keys:")
-#         print(list(data.keys()))
-#     annotations, categories = data['annotations'], data['categories']
-#     image_id = {item['image_id']: item['category_id'] for item in annotations}
-#     label_id = {item['id']: item['name'] for item in categories}
-
-#     return image_id, label_id
 
 def get_coco_label(annotation_path):
     with open(annotation_path, 'r', encoding='utf-8') as file:
@@ -158,33 +148,23 @@ if __name__ == "__main__":
     log = open(os.path.join(save_dir, "log.txt"), mode="w", encoding="utf-8")
 
     # dataset
+
     if args.dataset_name == "coco":
         data_path = args.data_path
-        # all_images = glob.glob(os.path.join(data_path, 'coco2014/train2014', '*'))
-        selected_images = glob.glob(os.path.join('/224010165/Project/dx/watermark/NIRW/output-coco/dx-signature/orig', '*'))
-        
-        annotation_path = os.path.join(data_path, 'coco2014/annotations', 'instances_train2014.json')
-        image_to_id, id_to_label = get_coco_label(annotation_path)
-        # print('len of all_images:', len(all_images))
-        # selected_images = random.sample(all_images, args.num)
-        
-        all_images, labels, prompts = [], [], []
-        # for image_path in selected_images:
-        for image_path in selected_images:
-            all_images.append(image_path)
-            image_id = image_path.split('/')[-1].split('_')[0]
-            image_id = int(image_id)
-            
-            # image_path = image_path.split('_')[-1]
-            # print('image_path:', image_path)
-            # match = re.search(r'(\d+)\.jpg', image_path)
-            # image_id = int(match.group(1))
+        all_image_paths = glob.glob(os.path.join('/your path', '*'))
+        annotation_path = "/path to coco captions.json"
+        with open(annotation_path, 'r', encoding='utf-8') as f:
+            annotations_data = json.load(f)  
 
-            label = image_to_id[image_id]
-            prompt = id_to_label[label]
-            labels.append(label)    
+        all_images, labels, prompts = [], [], []
+        for image_path in all_image_paths:
+            all_images.append(image_path)
+            label = int(image_path.split('/')[-1].split('.')[0])
+            matching_annotations = [anno for anno in annotations_data['annotations'] if anno.get('image_id') == label]
+            prompt = matching_annotations[0]['caption']
+            labels.append(label)
             prompts.append(prompt)
-            
+
     elif args.dataset_name == 'imagenet':
         data_path = args.data_path
         all_images = glob.glob(os.path.join(data_path, 'imagenet/train2012', '*'))
@@ -201,6 +181,7 @@ if __name__ == "__main__":
             labels.append(label)    
             prompts.append(prompt)        
 
+    
     all_images = np.array(all_images)
     labels = np.array(labels)
 
@@ -235,14 +216,11 @@ if __name__ == "__main__":
 
 
     adv_paths = []
-    for ind, image_path in enumerate(all_images):
+    for ind, image_path in enumerate(all_images[:10]):
         tmp_image = Image.open(image_path).convert('RGB')
         
         if args.dataset_name == 'coco':
-            # image_path = image_path.split("_")[-1]
-            # match = re.search(r'(\d+)\.jpg', image_path)
-            # filename = str(match.group(1))
-            filename = image_path.split('/')[-1].split('_')[0]
+            filename = image_path.split('/')[-1].split('.')[0]
             
         elif args.dataset_name == 'imagenet':
             filename = image_path.split('_')[0].split('/')[-1]
