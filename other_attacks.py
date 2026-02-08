@@ -89,23 +89,24 @@ def model_transfer(clean_img_paths, adv_img_paths, label, res, save_path=r"outpu
         'jpeg_50': lambda x: utils_img.jpeg_compress(x, 50),
         }
 
-    bit_accs,word_accs = [],[]
-
     for name, attack in attacks.items():
         print("\n*********Type of attack {}********".format(name))
-        print("\n*********Type of attack {}********".format(name), file=log)
 
+        bit_acc,word_acc,count = 0,0,0
+        
         for adv_img in adv_img_paths:
             img = Image.open(adv_img)
-            
             img = transform_imnet(img).unsqueeze(0).to("cuda")
             img = attack(img)
             decoded = msg_decoder(img) # b c h w -> b k
-
+            keys = [int(bit) for bit in keys]
+            keys = torch.tensor(keys, dtype=torch.float32).to('cuda:0')
             diff = (~torch.logical_xor(decoded>0, keys>0)) # b k -> b k
+
             bit_acc += torch.sum(diff, dim=-1) / diff.shape[-1] # b k -> b
             word_acc += (bit_acc == 1) # b
             count += 1
+
         print("Accuracy on bit: {}%, Accuracy on word: {}%".format((bit_acc/count).item(),(word_acc/count).item()))
         print("Accuracy on bit: {}%, Accuracy on word: {}%".format((bit_acc/count).item(),(word_acc/count).item()),file=log)
 
